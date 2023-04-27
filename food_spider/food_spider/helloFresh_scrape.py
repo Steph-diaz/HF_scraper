@@ -73,8 +73,7 @@ urls_1 = urls[0:1]
 print(urls_1)
 product = []
 for url in urls_1:
-    keywords = ['name', 'sub_name', 'cook_time', 'energy', 'description',
-                'nutrition_serving', 'nutrition_per100']
+
     values_tp = []
     values_list = []
     CDriver().driver.get(url)
@@ -85,9 +84,10 @@ for url in urls_1:
     cook_time = page.find_element(By.XPATH, '//div[@data-test-id="prep-time"]').text,
     energy = page.find_element(By.XPATH, '//div[@data-recipe-energy="true"]').text,
     description = page.find_element(By.XPATH, '//div/p[@class="web-1u68b9m"]').text,
+    allergens = page.find_element(By.XPATH, '//span[@data-test-id="recipe-allergens"]').text,
+    disclaimer = page.find_element(By.XPATH, '//span[@class="web-1wnxtfh"]').text,
 
-
-    # Get nutrients per serving and 100g
+    # *******Get nutrients per serving and 100g
     # Nutrients
     nutrients_list = []
     nutrients_raw = CDriver().driver.find_elements(By.XPATH, '//small[@class="web-14d5zh9"]/strong')
@@ -109,19 +109,68 @@ for url in urls_1:
         numb2 = item.text
         per100_list.append(numb2)
     # print(per100_list)
-
     # MAke dictionaries for *Serving and *per100g
     nutrition_serving = dict(zip(nutrients_list, serving_list))
     nutrition_per100 = dict(zip(nutrients_list, per100_list))
 
+    # *****Get Ingredients
+    # ingredients
+    ingredients_list = []
+    ingredients_raw = CDriver().driver.find_elements(By.XPATH, '//p[@class="web-1uk1gs8"]')
+    for ingredient in ingredients_raw:
+        ing_name = ingredient.text
+        ingredients_list.append(ing_name)
+    # print(ingredients_list)
+    # Ingredient values
+    ingvalues_list = []
+    ingvalues_raw = CDriver().driver.find_elements(By.XPATH, '//p[@class="web-x8zzfc"]')
+    for value in ingvalues_raw:
+        value_num = value.text
+        ingvalues_list.append(value_num)
+    # print(ingvalues_list)
+    # Make dict with ingredients and values
+    ingredient_values = dict(zip(ingredients_list, ingvalues_list))
+
+    # ******Recipe Steps **** Click button to expand data-test-id="toggle-cooking-steps"
+    # CDriver().driver.find_element(By.XPATH, '//button[@data-test-id="toggle-cooking-steps"]').click()
+    # Needs to scroll down to make the button visible and then scroll again to get paragraphs
+    CDriver().driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    link = WebDriverWait(CDriver().driver, 2).until(EC.visibility_of_element_located(
+        (By.XPATH, '//button[@data-test-id="toggle-cooking-steps"]')))
+    link.click()
+    CDriver().driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    time.sleep(1)
+
+    # Step numbers
+    step_list = []
+    step_raw = CDriver().driver.find_elements(By.XPATH, '//span[@class="web-sd7euz"]')
+    for number in step_raw:
+        num = number.text
+        step_list.append(num)
+
+    print(step_list)
+    # Step descriptions
+    steptext_list = []
+    steptext_raw = CDriver().driver.find_elements(By.XPATH, '//div[@class="web-1hhw9qn"]/p')
+    for p in steptext_raw:
+        ptext = p.text
+        steptext_list.append(ptext)
+
+    print(steptext_list)
+    print(CDriver().driver.find_element(By.XPATH, '//h3[@class="web-uymkwo"]').text)
+
     # convert tuple values to string before making Dict
-    values_tp.extend((name, name2, cook_time, energy, description))
+    keywords = ['name', 'sub_name', 'cook_time', 'energy', 'description',
+                'allergens', 'disclaimer',
+                'nutrition_serving', 'nutrition_per100', 'ingredient_values']
+    values_tp.extend((name, name2, cook_time, energy, description,
+                      allergens, disclaimer))
     for value in values_tp:
         i = ''.join(value)
         values_list.append(i)
 
     # Adding extra dicts to values_list
-    values_list.extend((nutrition_serving, nutrition_per100))
+    values_list.extend((nutrition_serving, nutrition_per100, ingredient_values))
     # Making Dict with product details
     product_dict = dict(zip(keywords, values_list))
     product.append(product_dict)
