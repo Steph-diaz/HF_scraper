@@ -5,6 +5,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, ElementNotInteractableException
 from selenium.webdriver.common.by import By
 import time
+import urllib.request
+import json
 
 ############ Hello Fresh selinum test ###################
 # url = 'https://www.hellofresh.ca/menus?locale=en-CA'
@@ -81,6 +83,9 @@ for url in urls_1:
 
     name = page.find_element(By.XPATH, '//h1[@class="web-xlhhyt"]').text,
     name2 = page.find_element(By.XPATH, '//h3[@class="web-1ilptws"]').text,
+    page_url = url
+    pdf_url = CDriver().driver.find_element(By.XPATH, '//a[@class="web-l1teuz"]').get_attribute(
+        "href")
     cook_time = page.find_element(By.XPATH, '//div[@data-test-id="prep-time"]').text,
     energy = page.find_element(By.XPATH, '//div[@data-recipe-energy="true"]').text,
     description = page.find_element(By.XPATH, '//div/p[@class="web-1u68b9m"]').text,
@@ -147,35 +152,45 @@ for url in urls_1:
     for number in step_raw:
         num = number.text
         step_list.append(num)
-
-    print(step_list)
+    # print(step_list)
     # Step descriptions
     steptext_list = []
     steptext_raw = CDriver().driver.find_elements(By.XPATH, '//div[@class="web-1hhw9qn"]/p')
     for p in steptext_raw:
         ptext = p.text
         steptext_list.append(ptext)
-
-    print(steptext_list)
-    print(CDriver().driver.find_element(By.XPATH, '//h3[@class="web-uymkwo"]').text)
+    # print(steptext_list)
+    # print(CDriver().driver.find_element(By.XPATH, '//h3[@class="web-uymkwo"]').text)
+    # MAke Dict of steps
+    instructions = dict(zip(step_list, steptext_list))
 
     # convert tuple values to string before making Dict
-    keywords = ['name', 'sub_name', 'cook_time', 'energy', 'description',
+    keywords = ['name', 'sub_name', 'url', 'pdf_url', 'cook_time', 'energy', 'description',
                 'allergens', 'disclaimer',
-                'nutrition_serving', 'nutrition_per100', 'ingredient_values']
-    values_tp.extend((name, name2, cook_time, energy, description,
+                'nutrition_serving', 'nutrition_per100', 'ingredient_values', 'instructions']
+    values_tp.extend((name, name2, page_url, pdf_url, cook_time, energy, description,
                       allergens, disclaimer))
     for value in values_tp:
         i = ''.join(value)
         values_list.append(i)
 
     # Adding extra dicts to values_list
-    values_list.extend((nutrition_serving, nutrition_per100, ingredient_values))
+    values_list.extend((nutrition_serving, nutrition_per100, ingredient_values, instructions))
     # Making Dict with product details
     product_dict = dict(zip(keywords, values_list))
     product.append(product_dict)
 
+    # Saving files
+    pdf_name = "results/chefs_plate/pdfs/" + values_list[0] + ".pdf"
+    response = urllib.request.urlopen(pdf_url)
+    file = open(pdf_name, 'wb')
+    file.write(response.read())
+    file.close()
+
+
 print(product)
+with open('results/chefs_plate/output.json', 'w') as f:
+    f.write(json.dumps(product))
 
 
 
