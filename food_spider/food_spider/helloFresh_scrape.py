@@ -2,6 +2,8 @@ from pathlib import Path
 from cdriver import CDriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException
+
 from selenium.common.exceptions import TimeoutException, ElementNotInteractableException
 from selenium.webdriver.common.by import By
 import time
@@ -51,12 +53,18 @@ CDriver().driver.delete_all_cookies()
 CDriver().driver.get(url)
 print(url)
 input("Scroll page down and wait for pop-up, Press Enter to continue...")
- # go into each menu item (open modal) and get the detail information href of each
-# x = CDriver().driver.find_elements(By.CSS_SELECTOR, '.web-1c82rjx')
-###################### only for testing ##########################
-x= []
-xx = CDriver().driver.find_element(By.XPATH, '//a[@class="web-1c82rjx"][1]')
-x.append(xx)
+# # go into each menu item (open modal) and get the detail information href of each
+# Get first slider
+slider = CDriver().driver.find_element(By.XPATH, "//div[@class='swiper-wrapper'][1]")
+# x = []
+x= slider.find_elements(By.CSS_SELECTOR, ".web-1c82rjx")
+# for elem in element:
+#     x.append(elem)
+##################### only for testing ##########################
+# x = []
+# xx = CDriver().driver.find_element(By.XPATH, '//a[@class="web-1c82rjx"][1]')
+
+# x.append(xx)
 ##########################
 print(len(x))
 input("Scroll page down and wait for pop-up, Press Enter to continue...")
@@ -70,22 +78,27 @@ for my_elem in x:
 
 
 urls = list(set(urls))
-urls_1 = urls[0:1]
+# urls_1 = urls[0:1]
 
-print(urls_1)
+print(urls)
 product = []
-for url in urls_1:
+for url in urls:
 
     values_tp = []
     values_list = []
     CDriver().driver.get(url)
-    page = WebDriverWait(CDriver().driver, 5).until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".web-1lanr3s")))
+    page = WebDriverWait(CDriver().driver, 7).until(EC.visibility_of_element_located((
+        By.CSS_SELECTOR, ".web-1lanr3s")))
 
     name = page.find_element(By.XPATH, '//h1[@class="web-xlhhyt"]').text,
     name2 = page.find_element(By.XPATH, '//h3[@class="web-1ilptws"]').text,
     page_url = url
-    pdf_url = CDriver().driver.find_element(By.XPATH, '//a[@class="web-l1teuz"]').get_attribute(
-        "href")
+    # pdf_url = CDriver().driver.find_element(By.XPATH, '//a[@class="web-l1teuz"]').get_attribute(
+    #     "href")
+    try:
+        pdf_url = CDriver().driver.find_element(By.XPATH, '//a[@class="web-l1teuz"]').get_attribute("href")
+    except NoSuchElementException:
+        pdf_url = None
     cook_time = page.find_element(By.XPATH, '//div[@data-test-id="prep-time"]').text,
     energy = page.find_element(By.XPATH, '//div[@data-recipe-energy="true"]').text,
     description = page.find_element(By.XPATH, '//div/p[@class="web-1u68b9m"]').text,
@@ -181,11 +194,12 @@ for url in urls_1:
     product.append(product_dict)
 
     # Saving files
-    pdf_name = "results/chefs_plate/pdfs/" + values_list[0] + ".pdf"
-    response = urllib.request.urlopen(pdf_url)
-    file = open(pdf_name, 'wb')
-    file.write(response.read())
-    file.close()
+    if pdf_url is not None:
+        pdf_name = "results/chefs_plate/pdfs/" + values_list[0] + ".pdf"
+        response = urllib.request.urlopen(pdf_url)
+        file = open(pdf_name, 'wb')
+        file.write(response.read())
+        file.close()
 
 
 print(product)
