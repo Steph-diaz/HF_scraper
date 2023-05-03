@@ -26,7 +26,8 @@ class HelloFreshSpider(GenericSpider):
         CDriver().driver.quit()
 
     def start_requests(self):
-        start_url = 'https://www.hellofresh.ca/menus?locale=en-CA'
+        start_url = 'https://www.hellofresh.ca/menus?locale=en-CA' # Scrape current week
+        # start_url = 'https://www.hellofresh.ca/menus/2023-W20?locale=en-CA' # Choose week
 
         urls = []
         CDriver().driver.delete_all_cookies()
@@ -66,8 +67,8 @@ class HelloFreshSpider(GenericSpider):
     def parse(self, response):
 
         product_link = response.url
-        firstname = response.css('h1.sc-f1f602c0-0::text').get()
-        secondname = response.css('h4.sc-f1f602c0-0::text').get(default='')
+        firstname = response.css('h1.sc-5b343ba0-0::text').get(default='')
+        secondname = response.css('h4.sc-5b343ba0-0::text').get(default='')
         pdf_link = response.css('a[href*=pdf]::attr(href)').get(default='')
         # # Save pdf
         # pdf_data = requests.get(pdf_link)
@@ -78,24 +79,24 @@ class HelloFreshSpider(GenericSpider):
         #     file.write(pdf_data.content)
 
 
-        allergens_list = response.xpath('//div[@data-test-id="recipe-description-allergen"]/span[@class="sc-f1f602c0-0 XJyHj"]/text()').getall()
+        allergens_list = response.xpath('//div[@data-test-id="recipe-description-allergen"]/span[@class="sc-5b343ba0-0 jNSwKq"]/text()').getall()
         utensils_list = response.xpath('//div[@data-test-id="utensils-list-item"]/span[2]/text()').getall()
         # Some Ingredients contain these
-        ingred_contain_list = response.xpath('//div[@class="sc-f1f602c0-0 ifxZyI"]/p/span[2]/text()').getall()
+        ingred_contain_list = response.xpath('//div[@class="sc-5b343ba0-0 hKsAS"]/p/span[2]/text()').getall()
 
         # Making Dict of nutrient and values
-        nut_list = response.xpath('//span[@class="sc-f1f602c0-0 evLAvX"]/text()').getall()
-        nut_values_raw = response.xpath('//div[@data-test-id="nutrition-step"]/span[@class="sc-f1f602c0-0 gLLWSr"]//text()').getall()
+        nut_list = response.xpath('//span[@class="sc-5b343ba0-0 ldfTXV"]/text()').getall()
+        nut_values_raw = response.xpath('//div[@data-test-id="nutrition-step"]/span[@class="sc-5b343ba0-0 fFYngF"]//text()').getall()
         nut_values_list = [nut_values_raw[i] + nut_values_raw[i+2] for i in range(0,len(nut_values_raw),3)]
         nutrition = dict(zip(nut_list, nut_values_list))
         # Making Dict of ingredients
-        ingred_list = response.xpath('//div[@class="sc-f1f602c0-0 ifxZyI"]/p[2]/text()').getall()
-        ingred_values_list = response.xpath('//div[@class="sc-f1f602c0-0 ifxZyI"]/p[1]/text()').getall()
+        ingred_list = response.xpath('//div[@class="sc-5b343ba0-0 hKsAS"]/p[2]/text()').getall()
+        ingred_values_list = response.xpath('//div[@class="sc-5b343ba0-0 hKsAS"]/p[1]/text()').getall()
         ingredients = dict(zip(ingred_list, ingred_values_list))
 
         # Making dict of instructions
-        step_number = response.xpath('//div[@class="sc-f1f602c0-0 jBFkrx"]/span/text()').getall()
-        step_descrip =response.xpath('//div[@class="sc-f1f602c0-0 kOYOQw"]/span/p/text()').getall()
+        step_number = response.xpath('//div[@class="sc-5b343ba0-0 ernwOn"]/span/text()').getall()
+        step_descrip =response.xpath('//div[@class="sc-5b343ba0-0 bvnmoG"]/span/p/text()').getall()
         step_numb_formatted = [f'Instruction {x[0:]}' for x in step_number]
         instructions = dict(zip(step_numb_formatted, step_descrip))
 
@@ -103,17 +104,17 @@ class HelloFreshSpider(GenericSpider):
             'name': firstname + " " + secondname,
             'product_pdf_link': pdf_link,
             'product_link': product_link,
-            'description': response.xpath('//span[@class="sc-f1f602c0-0 XJyHj"]/p/text()').get(
+            'description': response.xpath('//span[@class="sc-5b343ba0-0 gMmzWl"]/p/text()').get(
                 default=''),
-            'preparation_time': response.xpath('//span[@class="sc-f1f602c0-0 gLLWSr"]/text('
+            'preparation_time': response.xpath('//span[@class="sc-5b343ba0-0 fFYngF"]/text('
                                                ')').get(default=''),
             'difficulty': response.xpath('//span['
                                          '@data-translation-id="recipe-detail.level-number-2"]/text()').get(default=''),
             'tags': response.xpath('//div[@data-test-id="recipe-description-tag"]/span[@class="sc-f1f602c0-0 XJyHj"]/text()').get(default=''),
             'allergens': ", ".join(allergens_list),
-            'allergens_disclaimer': response.xpath('//span[@data-translation-id="recipe-detail.allergens-disclaimer"]/text()').get(),
+            'allergens_disclaimer': response.xpath('//span[@data-translation-id="recipe-detail.allergens-disclaimer"]/text()').get(default=''),
             'nutritional_info': response.xpath('//span['
-                                            '@data-translation-id="recipe-detail.recipe-detail.per-serving"]/text()').get(),
+                                            '@data-translation-id="recipe-detail.recipe-detail.per-serving"]/text()').get(default=''),
             'nutrition': nutrition,
             'ingredients': ingredients,
             'utensils': ", ".join(utensils_list),
