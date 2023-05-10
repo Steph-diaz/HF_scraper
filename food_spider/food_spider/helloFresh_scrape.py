@@ -102,7 +102,10 @@ for url in urls:
     cook_time = page.find_element(By.XPATH, '//div[@data-test-id="prep-time"]').text,
     energy = page.find_element(By.XPATH, '//div[@data-recipe-energy="true"]').text,
     description = page.find_element(By.XPATH, '//div/p[@class="web-1u68b9m"]').text,
-    allergens = page.find_element(By.XPATH, '//span[@data-test-id="recipe-allergens"]').text,
+    try:
+        allergens = page.find_element(By.XPATH, '//span[@data-test-id="recipe-allergens"]').text,
+    except NoSuchElementException:
+        allergens = ''
     disclaimer = page.find_element(By.XPATH, '//span[@class="web-1wnxtfh"]').text,
 
     # *******Get nutrients per serving and 100g
@@ -203,7 +206,7 @@ for url in urls:
 
 
 print(product)
-with open('results/chefs_plate/output.json', 'w') as f:
+with open('results/chefs_plate/cp_output.json', 'w') as f:
     f.write(json.dumps(product))
 
 

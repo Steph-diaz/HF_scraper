@@ -27,8 +27,8 @@ sections = CDriver().driver.find_elements(By.XPATH, "//div[@id='selected-recipes
                                                     "@class='mt-5']/section/div[@class='relative grid mt-6 z-0 grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-3']/a")
 
 # ### For testing #####
-sections = CDriver().driver.find_elements(By.XPATH, "//div[@id='selected-recipes']/div["
-                                                  "@class='mt-5'][1]/section/div[@class='relative grid mt-6 z-0 grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-3']/a[1]")
+# sections = CDriver().driver.find_elements(By.XPATH, "//div[@id='selected-recipes']/div["
+#                                                   "@class='mt-5'][1]/section/div[@class='relative grid mt-6 z-0 grid-cols-1 gap-x-6 gap-y-10 md:grid-cols-3']/a[1]")
 
 ##########################
 print(len(sections))
@@ -58,105 +58,126 @@ for url in urls:
 
     name = page.find_element(By.XPATH, '//h1[@data-testid="title"]').text
     name2 = page.find_element(By.XPATH, '//h2[@data-testid="text"]').text
-#     page_url = url
-#     # pdf_url = CDriver().driver.find_element(By.XPATH, '//a[@class="web-l1teuz"]').get_attribute(
-#     #     "href")
-#     try:
-#         pdf_url = CDriver().driver.find_element(By.XPATH, '//a[@class="web-l1teuz"]').get_attribute("href")
-#     except NoSuchElementException:
-#         pdf_url = None
-#     cook_time = page.find_element(By.XPATH, '//div[@data-test-id="prep-time"]').text,
-#     energy = page.find_element(By.XPATH, '//div[@data-recipe-energy="true"]').text,
-#     description = page.find_element(By.XPATH, '//div/p[@class="web-1u68b9m"]').text,
-#     allergens = page.find_element(By.XPATH, '//span[@data-test-id="recipe-allergens"]').text,
+    page_url = url
+
+    try:
+        cook_time = page.find_element(By.XPATH, '//div[@class="flex py-3 border-gray-300 '
+                                                'border-r-2 last:border-0 pl-5"]/p').text
+    except NoSuchElementException:
+        cook_time = ''
+
+    try:
+        energy = page.find_element(By.XPATH, '//div[@class="flex py-3 border-gray-300 border-r-2 '
+                                          'last:border-0 pr-5"]/p').text
+    except NoSuchElementException:
+        energy = ''
+    description = page.find_element(By.XPATH, '//p[@class="text-gray-700 py-3 mt-3"]').text,
+
+    try:
+        allergens = page.find_element(By.XPATH, '//div[contains(@class, "flex text-gray-1000")]/p['
+                                                '2]').text,
+    except NoSuchElementException:
+        allergens = ''
 #     disclaimer = page.find_element(By.XPATH, '//span[@class="web-1wnxtfh"]').text,
-#
-#     # *******Get nutrients per serving and 100g
-#     # Nutrients
-#     nutrients_list = []
-#     nutrients_raw = CDriver().driver.find_elements(By.XPATH, '//small[@class="web-14d5zh9"]/strong')
-#     for nutrient in nutrients_raw:
-#         nut_name = nutrient.text
-#         nutrients_list.append(nut_name)
-#     # print(nutrients_list)
-#     # Serving
-#     serving_list = []
-#     serving_raw = CDriver().driver.find_elements(By.XPATH, '//div[@class="web-dxsv06"]/span')
-#     for serving in serving_raw:
-#         numb = serving.text
-#         serving_list.append(numb)
-#     # print(serving_list)
-#     # Per 100g
-#     per100_list = []
-#     per100_raw = CDriver().driver.find_elements(By.XPATH, '//div[@data-test-id="nutrition-per-100g"]')
-#     for item in per100_raw:
-#         numb2 = item.text
-#         per100_list.append(numb2)
-#     # print(per100_list)
-#     # MAke dictionaries for *Serving and *per100g
-#     nutrition_serving = dict(zip(nutrients_list, serving_list))
-#     nutrition_per100 = dict(zip(nutrients_list, per100_list))
-#
-#     # *****Get Ingredients
-#     # ingredients
-#     ingredients_list = []
-#     ingredients_raw = CDriver().driver.find_elements(By.XPATH, '//p[@class="web-1uk1gs8"]')
-#     for ingredient in ingredients_raw:
-#         ing_name = ingredient.text
-#         ingredients_list.append(ing_name)
-#     # print(ingredients_list)
-#     # Ingredient values
-#     ingvalues_list = []
-#     ingvalues_raw = CDriver().driver.find_elements(By.XPATH, '//p[@class="web-x8zzfc"]')
-#     for value in ingvalues_raw:
-#         value_num = value.text
-#         ingvalues_list.append(value_num)
-#     # print(ingvalues_list)
-#     # Make dict with ingredients and values
-#     ingredient_values = dict(zip(ingredients_list, ingvalues_list))
-#
-#     # ******Recipe Steps **** Click button to expand data-test-id="toggle-cooking-steps"
-#     # CDriver().driver.find_element(By.XPATH, '//button[@data-test-id="toggle-cooking-steps"]').click()
-#     # Needs to scroll down to make the button visible and then scroll again to get paragraphs
-#     CDriver().driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-#     link = WebDriverWait(CDriver().driver, 2).until(EC.visibility_of_element_located(
-#         (By.XPATH, '//button[@data-test-id="toggle-cooking-steps"]')))
-#     link.click()
-#     CDriver().driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-#     time.sleep(1)
-#
-#     # Step numbers
-#     step_list = []
-#     step_raw = CDriver().driver.find_elements(By.XPATH, '//span[@class="web-sd7euz"]')
-#     for number in step_raw:
-#         num = number.text
-#         step_list.append(num)
-#     # print(step_list)
-#     # Step descriptions
-#     steptext_list = []
-#     steptext_raw = CDriver().driver.find_elements(By.XPATH, '//div[@class="web-1hhw9qn"]/p')
-#     for p in steptext_raw:
-#         ptext = p.text
-#         steptext_list.append(ptext)
-#     # print(steptext_list)
-#     # print(CDriver().driver.find_element(By.XPATH, '//h3[@class="web-uymkwo"]').text)
-#     # MAke Dict of steps
-#     instructions = dict(zip(step_list, steptext_list))
+
+    # CDriver().driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    # time.sleep(1)
+
+    # ingredients
+    ingredients_list = []
+    try:
+        ingredients_raw = CDriver().driver.find_elements(By.XPATH, "//section[@class='w-full "
+                                                                   "md:w-1/2 px-3 py-3']/ul["
+                                                                   "@class='pl-6']/li[@class='text-gray-1000 mb-5 list-disc last:mb-0']/p")
+        for ingredient in ingredients_raw:
+            ing_name = ingredient.text
+            ing_name = ing_name + ', '
+            ingredients_list.append(ing_name)
+        # print(ingredients_list)
+    except NoSuchElementException:
+        ingredients_list = ['No ingredients provided']
+
+    # utensils
+    utensils_list = []
+    try:
+        utensils_raw = CDriver().driver.find_elements(By.XPATH, "//section[@class='w-full md:w-1/2 px-3 py-3 "
+                                                   "pt-5 mt-5 border-t md:mt-0 md:border-l "
+                                                   "md:border-t-0 border-gray-300']/ul[@class='pl-6']/li[@class='text-gray-1000 mb-5 list-disc last:mb-0']/p")
+
+        for item in utensils_raw:
+            utensil = item.text
+            utensil = utensil + ', '
+            utensils_list.append(utensil)
+    except NoSuchElementException:
+        utensils_list = ['No utensils specified']
+
+    # ****** Nutrition **** Click button to expand data-testid="tab__nutrition-facts"
+    try:
+        CDriver().driver.find_element(By.XPATH, '//button['
+                                             '@data-testid="tab__nutrition-facts"]').click()
+
+        # calories = CDriver().driver.find_element(By.XPATH, "//div[@class='flex mb-3']/p["
+        #                                                    "@class='font-bold ml-1']").text
+        # Nutrients
+        nutrients_list = []
+        nutrients_raw = CDriver().driver.find_elements(By.XPATH,
+                                                       "//tbody/tr[@class='border-b "
+                                                       "border-gray-300 last:border-b-0']/td[@class='py-2'][1]/p[@class='text-gray-700']")
+        for nutrient in nutrients_raw:
+            nut_name = nutrient.text
+            nutrients_list.append(nut_name)
+        # print(nutrients_list)
+        # Serving
+        serving_list = []
+        serving_raw = CDriver().driver.find_elements(By.XPATH, "//tbody/tr[@class='border-b border-gray-300 last:border-b-0']/td[@class='py-2'][2]/p[@class='font-bold text-gray-1000']")
+        for serving in serving_raw:
+            numb = serving.text
+            serving_list.append(numb)
+        # print(serving_list)
+
+        nutrition = dict(zip(nutrients_list, serving_list))
+        # print(nutrition)
+    except NoSuchElementException:
+        nutrition = {'none': 'No nutrition specified'}
+
+    # ****** recipe **** Click button to expand data-testid="tab__recipe" **************
+    try:
+        CDriver().driver.find_element(By.XPATH, '//button['
+                                                '@data-testid="tab__recipe"]').click()
+
+        # Step numbers
+        step_list = []
+        step_raw = CDriver().driver.find_elements(By.XPATH, "//div[@class='mt-5 w-full text-left flex flex-col md:w-5/12 md:mt-0']/div[@class='font-bold mb-3 text-gray-1000']")
+        for number in step_raw:
+            num = number.text
+            step_list.append(num)
+        # print(step_list)
+        # Step descriptions
+        steptext_list = []
+        steptext_raw = CDriver().driver.find_elements(By.XPATH, "//div[@class='mt-5 w-full text-left flex flex-col md:w-5/12 md:mt-0']/div[@class='text-gray-700']")
+        for p in steptext_raw:
+            ptext = p.text
+            steptext_list.append(ptext)
+        # print(steptext_list)
+        instructions = dict(zip(step_list, steptext_list))
+    except NoSuchElementException:
+        instructions = {'none': 'Not specified'}
+
 #
     # convert tuple values to string before making Dict
-    keywords = ['name', 'sub_name', #'url', 'pdf_url', 'cook_time', 'energy', 'description',
-                # 'allergens', 'disclaimer',
-                # 'nutrition_serving', 'nutrition_per100', 'ingredient_values', 'instructions'
+    keywords = ['name', 'sub_name', 'url', 'cook_time', 'energy', 'description',
+                'allergens', 'ingredients', 'utensils', 'nutrition',
+                'instructions'
                 ]
-    values_tp.extend((name, name2, #page_url, pdf_url, cook_time, energy, description,
-                      # allergens, disclaimer
+    values_tp.extend((name, name2, page_url, cook_time, energy, description,
+                      allergens, ingredients_list, utensils_list,
                       ))
     for value in values_tp:
         i = ''.join(value)
         values_list.append(i)
 #
 #     # Adding extra dicts to values_list
-#     values_list.extend((nutrition_serving, nutrition_per100, ingredient_values, instructions))
+    values_list.extend((nutrition, instructions))
 #     # Making Dict with product details
     product_dict = dict(zip(keywords, values_list))
     product.append(product_dict)
@@ -171,8 +192,8 @@ for url in urls:
 #
 #
 print(product)
-# with open('results/chefs_plate/output.json', 'w') as f:
-#     f.write(json.dumps(product))
+with open('results/good_food/gf_output.json', 'w') as f:
+    f.write(json.dumps(product))
 
 
 
